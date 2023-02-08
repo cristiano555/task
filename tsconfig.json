@@ -64,7 +64,7 @@
         "__mocks__/*"
       ],
       "@/*": [
-        "app/*"
+        "src/*"
       ]
     },
     "incremental": true

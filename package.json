@@ -15,6 +15,9 @@
     }
   },
   "dependencies": {
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@mui/material": "^5.11.8",
     "husky": "^8.0.3",
     "next": "13.1.6",
     "react": "18.2.0",

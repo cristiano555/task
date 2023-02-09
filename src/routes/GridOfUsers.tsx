@@ -1,12 +1,10 @@
-import react, { useContext } from 'react'
-import Box from '@mui/material/Box'
-import Container from '@mui/material/Container'
-import Card from '@/components/Card'
+import react, { useContext } from 'react';
+import Container from '@mui/material/Container';
+import Card from '@/components/Card';
 import { UsersContext } from '@/context/UsersContext';
 
 const GridOfUsers = () => {
-  const users = useContext(UsersContext);
-  console.log('data z gridu', users);
+  const { users } = useContext(UsersContext);
 
   return (
     <Container
@@ -17,7 +15,7 @@ const GridOfUsers = () => {
         gap: '15px',
       }}
     >
-      {users.map(user =>  <Card user={user} />)}
+      {users.map(user => <Card user={user} key={user.id} />)}
     </Container>
   )
 };

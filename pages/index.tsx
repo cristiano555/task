@@ -1,15 +1,11 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
-import GridOfUsers from '@/views/GridOfUsers'
-import Container from '@mui/material/Container'
-import Card from '@/components/Card'
-import { UsersContext } from '@/context/UsersContext'
+import GridOfUsers from '@/routes/GridOfUsers'
 
 
-export default function Home({ data }) {
+export default function Home() {
 
-  console.log('data', data);
   return (
     <div className={styles.container}>
       {/* <Head>
@@ -19,34 +15,15 @@ export default function Home({ data }) {
       </Head> */}
 
       <main className={styles.main}>
-      <UsersContext.Provider value={data}>
-        <GridOfUsers />
-      </UsersContext.Provider>
-
-        {/* <Container maxWidth="sm">
-          <Card />
-        </Container> */}
+          <GridOfUsers />
       </main>
-
-      {/* <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <span className={styles.logo}>
-            <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-          </span>
-        </a>
-      </footer> */}
     </div>
   )
 }
 
-export async function getServerSideProps(context) {
-  const res = await fetch(`https://jsonplaceholder.typicode.com/users`)
-  const data = await res.json()
+// export async function getServerSideProps(context) {
+//   const res = await fetch(`https://jsonplaceholder.typicode.com/users`)
+//   const data = await res.json()
 
-  return { props: { data } }
-}
+//   return { props: { data } }
+// }

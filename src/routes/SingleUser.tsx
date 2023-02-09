@@ -13,13 +13,16 @@ import ListOfPosts from '@/routes/ListOfPosts';
 
 const SingleUser = () => {
   const { users } = useContext(UsersContext);
-  const userActivity = useContext(PostContext);
+  const {
+    posts,
+    setPosts,
+    setActiveUserId,
+    activeUserId,
+  } = useContext(PostContext);
   const [isOpenModal, setIsOpenModal] = useState(false);
   const router = useRouter()
-  const { id, posts, name } = userActivity;
-  console.log('name from single user', name);
 
-  const properUser = users.find(user => user.id.toString() === id);
+  const properUser = users.find(user => user.id.toString() === activeUserId);
 
   return (
     <Container>

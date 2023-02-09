@@ -1,24 +1,39 @@
-import React, { createContext } from 'react';
-import SingleUser from "@/routes/SingleUser";
-
+import React, {
+  useState,
+  createContext,
+  useEffect,
+} from 'react';
+import SingleUser from '@/routes/SingleUser';
+import { endpoint } from '@/utils/paths';
 
 export const PostContext = createContext(null);
 
 const SingleUserView = ({ userActivity }) => {
+  const [posts, setPosts] = useState([]);
+  const [activeUserId, setActiveUserId] = useState();
+
+  useEffect(() => {
+    const { posts, id } = userActivity;
+    setPosts(posts);
+    setActiveUserId(id);
+
+  }, [userActivity])
 
   return (
-    <PostContext.Provider value={userActivity}>
+    <PostContext.Provider value={{posts, setPosts, activeUserId, setActiveUserId}}>
       <SingleUser />
     </PostContext.Provider>
-  )
-}
+  );
+};
 
 export async function getStaticPaths() {
-  const res = await fetch(`https://jsonplaceholder.typicode.com/users`);
-  const fetchedUsers = await res.json();
+  const res = await fetch(`${endpoint.baseApiUrl}${endpoint.users}`);
+  const users = await res.json();
 
-  const paths = fetchedUsers.map(user => ({
-    params: { id: user.id.toString() },
+  const paths = users.map(user => ({
+    params: {
+      id: user.id.toString()
+    },
   }));
 
   return {
@@ -27,21 +42,19 @@ export async function getStaticPaths() {
   };
 };
 
-
 export async function getStaticProps(context) {
   const { id } = context.params;
-  const res = await fetch(`https://jsonplaceholder.typicode.com/posts?userId=${id}`);
-  const fetchedPosts = await res.json();
-  console.log('fetchedPosts', fetchedPosts)
+  const res = await fetch(`${endpoint.baseApiUrl}/posts?userId=${id}`);
+  const posts = await res.json();
 
   return {
     props: {
       userActivity: {
         id: id,
-        posts: fetchedPosts
+        posts: posts
       }
     },
-  }
-}
+  };
+};
 
 export default SingleUserView;

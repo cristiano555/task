@@ -8,12 +8,17 @@ import { PostContext } from '../../pages/user/[id]';
 import Link from 'next/link';
 
 const ListOfPosts = () => {
-  const userActivity = useContext(PostContext);
-  const { id, posts } = userActivity;
+  const {
+    posts,
+    setPosts,
+    setActiveUserId,
+    activeUserId,
+  } = useContext(PostContext);
 
-  const removePost = () => {
-
-  }
+  const removePost = (id) => {
+    const filteredPosts = posts.filter(post => post.id !== id);
+    setPosts(filteredPosts);
+  };
 
   return (
     <List
@@ -26,7 +31,7 @@ const ListOfPosts = () => {
         posts.map(post => (
           <Link
             key={post.id}
-            href={`/user/${id}/${post.id}`}
+            href={`/user/${activeUserId}/${post.id}`}
           >
             <ListItem
               sx={{
@@ -38,7 +43,10 @@ const ListOfPosts = () => {
               <IconButton
                 edge="start"
                 aria-label="delete"
-                onClick={() => removePost(id)}
+                onClick={(event) => {
+                  removePost(post.id);
+                  event.preventDefault();
+                }}
               >
                 <DeleteIcon />
               </IconButton>

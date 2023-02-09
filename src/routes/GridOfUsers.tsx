@@ -1,10 +1,10 @@
 import react, { useContext } from 'react';
 import Container from '@mui/material/Container';
 import Card from '@/components/Card';
-import { UsersContext } from '@/context/UsersContext';
+// import { UsersContext } from '@/context/UsersContext';
 
-const GridOfUsers = () => {
-  const { users } = useContext(UsersContext);
+const GridOfUsers = ({ users }) => {
+  // const { users } = useContext(UsersContext);
 
   return (
     <Container

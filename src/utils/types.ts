@@ -1,15 +1,13 @@
-export interface ICompany {
+export type CompanyType = {
   name: string;
-  catchPhrase: string;
-  bs: string;
 }
 
-export interface IUser {
+export type UserType = {
   id: number;
   name: string;
-  email: string;
   username: string;
+  email: string;
   phone: string;
   website: string;
-  company: ICompany;
+  company: CompanyType;
 }

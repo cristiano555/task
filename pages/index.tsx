@@ -1,12 +1,18 @@
-import styles from '../styles/Home.module.css';
+// import styles from '../styles/Home.module.css';
+import { GetServerSideProps } from 'next';
 import GridOfUsers from '@/routes/GridOfUsers';
+import { getData } from '@/utils/helpers';
+import { endpoint } from '@/utils/paths';
+import { UserType } from '@/utils/types';
 
+type HomePagePropTypes = {
+  users: Array<UserType>;
+}
 
-const HomePage = ({ users }) => <GridOfUsers users={users} />
+const HomePage = ({ users }: HomePagePropTypes) => <GridOfUsers users={users} />
 
-export async function getServerSideProps(context) {
-  const res = await fetch(`https://jsonplaceholder.typicode.com/users`)
-  const users = await res.json()
+export const getServerSideProps: GetServerSideProps = async context => {
+  const users = await getData(endpoint.users);
 
   return {
     props: {
@@ -14,6 +20,5 @@ export async function getServerSideProps(context) {
     }
   };
 };
-
 
 export default HomePage;

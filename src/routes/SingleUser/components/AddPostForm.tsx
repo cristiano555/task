@@ -1,19 +1,24 @@
 import React, {
   Dispatch,
   SetStateAction,
+  useContext,
   useState,
 } from 'react';
+import axios from 'axios';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import { palette } from '@/utils/constants';
+import UserContext from '@/context/UserContext';
+import { endpoint } from '@/utils/paths';
+import ErrorView from '@/components/ErrorView';
 
 type AddFormPostPropTypes = {
   handleCloseModal: Dispatch<SetStateAction<boolean>>;
 }
 
-const AddFormPost = ({ handleCloseModal }: AddFormPostPropTypes ) => {
+const AddFormPost = ({
+  handleCloseModal,
+}: AddFormPostPropTypes ) => {
   const [
     title,
     setTitle,
@@ -26,24 +31,34 @@ const AddFormPost = ({ handleCloseModal }: AddFormPostPropTypes ) => {
     errorMessage,
     setErrorMessage,
   ] = useState<string>('');
+  const context = useContext(UserContext);
+  if (!context) {
+    return <ErrorView errorMessage="Context Error. There was a problem with getting data" />
+  };
+  const {
+    userPosts,
+    setUserPosts,
+    userId,
+  } = context;
 
-
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const inputLength = title.length;
-    const maxLength = 80;
-
-    if (inputLength > maxLength) {
-      return setErrorMessage("Title is too long!");
+    try {
+      const post = { title: title, content: content, userId: userId };
+      const res = await axios.post(`${endpoint.baseApiUrl}${endpoint.posts}`, post);
+      setUserPosts([
+        ...userPosts,
+        res.data,
+      ]);
+      setTitle('');
+      setContent('');
+      handleCloseModal(false);
+    } catch(err) {
+      if (axios.isAxiosError(err)) {
+        setErrorMessage(err.response?.data as string ?? 'Something went wrong...');
+      }
+      setErrorMessage('Something went wrong...');
     }
-
-    if (/[<>'"%&;]/.test(title)) {
-      return setErrorMessage("Title contains disallowed characters");
-    }
-
-    setErrorMessage('');
-
-    return setTitle('');
   }
 
   function handleTitleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
@@ -89,11 +104,9 @@ const AddFormPost = ({ handleCloseModal }: AddFormPostPropTypes ) => {
         onChange={e => handleContentChange(e)}
         value={content}
       />
-      <Typography
-        sx={{ color: palette.error }}
-      >
-        {errorMessage}
-      </Typography>
+      {errorMessage && (
+        <ErrorView errorMessage={errorMessage} />
+      )}
       <Box
         sx={{
           display: 'flex',

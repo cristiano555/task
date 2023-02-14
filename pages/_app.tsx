@@ -1,27 +1,36 @@
-import react, { useState } from 'react';
 import '../styles/globals.css';
+import {
+  useState,
+  useEffect,
+} from 'react';
 import { AppProps } from 'next/app';
-import UsersProvider from '@/context/UsersContext';
-// import UsersContext from '@/context/UsersContext';
-import PostsContext from '@/context/PostsContext';
-
+import { useRouter } from 'next/router'
+import FullScreenLoader from '@/components/FullScreenLoader';
 
 function MyApp({ Component, pageProps }: AppProps) {
-  const [users, setUsers] = useState([]);
-  const [posts, setPosts] = useState([]);
-  const [activeUserId, setActiveUserId] = useState();
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    router.events.on("routeChangeStart", url => {
+      setIsLoading(true)
+    });
+
+    router.events.on("routeChangeComplete", url => {
+      setIsLoading(false)
+    });
+
+    router.events.on("routeChangeError", url => {
+      setIsLoading(false)
+    });
+
+  }, [router])
+
 
   return (
-    // <UsersProvider>
-    //   <Component {...pageProps} />
-    // </UsersProvider>
-    // <UsersContext.Provider value={{users, setUsers}}>
-    // {/* </UsersContext.Provider> */}
-    <UsersProvider>
-      <PostsContext.Provider value={{posts, setPosts, activeUserId, setActiveUserId}}>
-        <Component {...pageProps} />
-      </PostsContext.Provider>
-    </UsersProvider>
+    <>
+      {isLoading ? <FullScreenLoader/> : <Component {...pageProps} />}
+    </>
   )
 }
 

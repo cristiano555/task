@@ -1,24 +1,39 @@
-import react, { useContext, useState } from 'react';
+import react, {
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useState,
+} from 'react';
+import Link from 'next/link';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import DeleteIcon from '@mui/icons-material/Delete';
 import IconButton from '@mui/material/IconButton';
-import { PostContext } from '../../pages/user/[id]';
-import Link from 'next/link';
+import UserContext from '@/context/UserContext';
+import { PostType } from '@/utils/types';
+import ErrorView from '@/components/ErrorView';
+import { REMOVING_POST } from '@/utils/constants';
 
-const ListOfPosts = () => {
+type ListOfPostsPropsType = {
+  handleModal: (content: string, title: string) => void;
+  setPostSelected: Dispatch<SetStateAction<string | number>>;
+}
+
+const ListOfPosts = ({
+  handleModal,
+  setPostSelected,
+}: ListOfPostsPropsType) => {
+  const context = useContext(UserContext);
+  if (!context) {
+    return <ErrorView errorMessage="Context Error. There was a problem with getting data" />
+  }
   const {
-    posts,
-    setPosts,
-    setActiveUserId,
-    activeUserId,
-  } = useContext(PostContext);
-
-  const removePost = (id) => {
-    const filteredPosts = posts.filter(post => post.id !== id);
-    setPosts(filteredPosts);
-  };
+    userPosts,
+    setUserPosts,
+    setUserId,
+    userId,
+  } = context;
 
   return (
     <List
@@ -27,11 +42,11 @@ const ListOfPosts = () => {
         margin: '30px 0',
       }}
     >
-      {posts && (
-        posts.map(post => (
+      {userPosts && (
+        userPosts.map((post: PostType) => (
           <Link
             key={post.id}
-            href={`/user/${activeUserId}/${post.id}`}
+            href={`/user/${userId}/${post.id}`}
           >
             <ListItem
               sx={{
@@ -44,7 +59,8 @@ const ListOfPosts = () => {
                 edge="start"
                 aria-label="delete"
                 onClick={(event) => {
-                  removePost(post.id);
+                  setPostSelected(post.id);
+                  handleModal(REMOVING_POST, 'Delete Post');
                   event.preventDefault();
                 }}
               >

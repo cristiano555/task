@@ -1,36 +1,61 @@
 import React, {
   useState,
-  createContext,
   useEffect,
 } from 'react';
+import { GetStaticProps } from 'next';
 import SingleUser from '@/routes/SingleUser';
 import { endpoint } from '@/utils/paths';
+import { getData } from '@/utils/helpers';
+import {
+  UserType,
+  PostType,
+} from '@/utils/types';
+import { ParsedUrlQuery } from 'querystring';
+import UserContext from '@/context/UserContext';
 
-export const PostContext = createContext(null);
+type SingleUserPagePropTypes = {
+  id: number | null;
+  name: string;
+  posts: Array<PostType>;
+}
 
-const SingleUserView = ({ userActivity }) => {
-  const [posts, setPosts] = useState([]);
-  const [activeUserId, setActiveUserId] = useState();
+const SingleUserPage = ({
+  id,
+  name,
+  posts,
+}: SingleUserPagePropTypes) => {
+  const [userName, setUserName] = useState<string>('');
+  const [userPosts, setUserPosts] = useState<Array<PostType>>([]);
+  const [userId, setUserId] = useState<number | null>(null);
 
   useEffect(() => {
-    const { posts, id } = userActivity;
-    setPosts(posts);
-    setActiveUserId(id);
-
-  }, [userActivity])
+    setUserPosts(posts);
+    setUserId(id);
+    setUserName(name);
+  }, [
+    id,
+    name,
+    posts,
+  ])
 
   return (
-    <PostContext.Provider value={{posts, setPosts, activeUserId, setActiveUserId}}>
+    <UserContext.Provider value={{
+      userPosts,
+      setUserPosts,
+      userId,
+      setUserId,
+      setUserName,
+      userName,
+    }}>
       <SingleUser />
-    </PostContext.Provider>
+    </UserContext.Provider>
   );
 };
 
 export async function getStaticPaths() {
-  const res = await fetch(`${endpoint.baseApiUrl}${endpoint.users}`);
-  const users = await res.json();
+  const users = await getData(endpoint.users);
 
-  const paths = users.map(user => ({
+  const paths = users.map((user: UserType) => ({
     params: {
       id: user.id.toString()
     },
@@ -42,19 +67,29 @@ export async function getStaticPaths() {
   };
 };
 
-export async function getStaticProps(context) {
-  const { id } = context.params;
-  const res = await fetch(`${endpoint.baseApiUrl}/posts?userId=${id}`);
-  const posts = await res.json();
+export const getStaticProps: GetStaticProps = async context => {
+  const params = context.params as ParsedUrlQuery;
+  if (!params?.id) {
+    return {
+      props: {},
+    };
+  }
+  const id = params.id as string;
+  const requestAll = await Promise.all([
+    getData(endpoint.users),
+    getData(endpoint.postsUserId, id)
+  ]);
+  const users = requestAll[0];
+  const posts = requestAll[1];
+  const user = users.find((user: UserType) => user.id.toString() === id);
 
   return {
     props: {
-      userActivity: {
-        id: id,
-        posts: posts
-      }
+      id: id,
+      name: user.name,
+      posts: posts,
     },
   };
 };
 
-export default SingleUserView;
+export default SingleUserPage;

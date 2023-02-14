@@ -1,15 +1,23 @@
-const getUser = async (id?: string) => {
-  try {
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-    };
-    const res = await fetch(`https://jsonplaceholder.typicode.com/posts/${id}`, headers);
-    const user = await res.json();
+import axios from 'axios';
+import { endpoint } from '@/utils/paths';
 
-    return user;
+export const getData = async (path: string, id?: string) => {
+  try {
+    if (id) {
+      const res = await axios.get(`${endpoint.baseApiUrl}${path}${id}`);
+      const data =  await res.data;
+
+      return data;
+    }
+
+    const res = await axios.get(`${endpoint.baseApiUrl}${path}`);
+    const data =  await res.data;
+
+    return data;
   } catch (err) {
-    return 'That was a problem with getting data :(';
+    if (axios.isAxiosError(err)) {
+      return(err?.response?.data as string ?? 'Something went wrong...');
+    }
+    return('Something went wrong...');
   }
 };
-
-export default getUser;

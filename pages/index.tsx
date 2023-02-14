@@ -1,4 +1,3 @@
-// import styles from '../styles/Home.module.css';
 import { GetServerSideProps } from 'next';
 import GridOfUsers from '@/routes/GridOfUsers';
 import { getData } from '@/utils/helpers';
